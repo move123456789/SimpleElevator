@@ -11,6 +11,9 @@ namespace SimpleElevator
         [AssetReference("MainElevator")]
         public static GameObject MainElevator { get; set; }
 
+        [AssetReference("ElevatorControlPanel")]
+        public static GameObject ElevatorControlPanel { get; set; }
+
         [AssetReference("cogwheel")]
         public static Texture2D LinkUiIcon { get; set; }
 

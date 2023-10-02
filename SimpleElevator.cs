@@ -1,4 +1,5 @@
 ﻿using AssemblyCSharp;
+using Endnight.Utilities;
 using Sons.Gui.Input;
 using SonsSdk;
 using SUI;
@@ -42,9 +43,7 @@ public class SimpleElevator : SonsMod
     {
         // This is called once the player spawns in the world and gains control.
 
-        sotfShader = Shader.Find("Sons/HDRPLit");
-
-        GenericFunctions.PostLogsToConsole("ElevatorUIManager instantiated");
+        Debug.sotfShader = Shader.Find("Sons/HDRPLit");
     }
 
     protected void OnUpdate()
@@ -59,54 +58,14 @@ public class SimpleElevator : SonsMod
         if (Input.GetKeyDown(KeyCode.RightControl))
         {
             GenericFunctions.PostLogsToConsole("Pressed RightControl");
-            // Instantiate the 3D model and apply the texture
-            Vector3 spawnPosition = LocalPlayer.Transform.position; // Use player's position
-            //Quaternion spawnRotation = LocalPlayer.Transform.rotation; // Use player's rotation
-            Quaternion spawnRotation = new Quaternion(0, 0, 0, 0); // Use predetermined rotation
-
-            GameObject game_obj_instance = UnityEngine.Object.Instantiate(Assets.MainElevator, spawnPosition, spawnRotation);
-            if (game_obj_instance != null)
-            {
-                ElevatorButtonController script_for_ui_element = game_obj_instance.transform.GetChild(1).gameObject.AddComponent<ElevatorButtonController>();
-
-                script_for_ui_element.InitializeController(game_obj_instance); // ADDS INITILISED GAMEOBJECT
-                GenericFunctions.PostLogsToConsole($"Prefab Spawned In Linked name: {game_obj_instance.name}");
-
-
-                game_obj_instance.SetActive(true);
-                game_obj_instance.layer = LayerMask.NameToLayer("Default");
-
-                
-
-
-                if (sotfShader == null)
-                {
-                    GenericFunctions.PostErrorToConsole("SOTF Shader Not been found yet");
-                    return;
-                }
-                //Assets.ElevatorMeterial.shader = sotfShader;
-
-                LinkUiElement linkUi = game_obj_instance.transform.GetChild(1).gameObject.AddComponent<LinkUiElement>();
-                linkUi._applyMaterial = false;
-                linkUi._applyText = false;
-                linkUi._applyTexture = true;
-                linkUi._texture = Assets.LinkUiIcon;
-                linkUi._maxDistance = 2;
-                linkUi._worldSpaceOffset = new Vector3(0, (float)0.5, 0);
-                linkUi._text = "";
-                linkUi._uiElementId = "screen.take";
-                linkUi.enabled = false;
-                linkUi.enabled = true;
-
-                script_for_ui_element.button = linkUi;
-                
-            }
-            else
-            {
-                GenericFunctions.PostErrorToConsole("Failed to instantiate model!");
-            }
+            Debug.SpawnPrefab(Assets.MainElevator);
+        }
+        if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            GenericFunctions.PostLogsToConsole("Pressed DownArrow");
+            Debug.SpawnPrefab(Assets.ElevatorControlPanel);
         }
     }
 
-    internal static Shader sotfShader;
+    
 }
