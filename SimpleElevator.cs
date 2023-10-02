@@ -43,6 +43,10 @@ public class SimpleElevator : SonsMod
         // This is called once the player spawns in the world and gains control.
 
         sotfShader = Shader.Find("Sons/HDRPLit");
+
+        // Ensure the ElevatorUIManager is instantiated
+        var elevatorManager = ElevatorUIManager.Instance;
+        GenericFunctions.PostLogsToConsole("ElevatorUIManager instantiated");
     }
 
     protected void OnUpdate()

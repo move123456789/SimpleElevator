@@ -2,6 +2,7 @@ using SUI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using static SimpleElevator.Mono;
 using static SUI.SUI;
 
 namespace SimpleElevator;
@@ -18,6 +19,7 @@ public class SimpleElevatorUi
     internal static SUiElement<SLabelOptions> SendMessage;
     internal static SUiElement<SLabelOptions> StartGoFloor;
     internal static Observable<string> textBoxValue = new("");
+
 
     public static void Create()
     {

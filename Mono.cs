@@ -18,6 +18,11 @@ namespace SimpleElevator
 
             private void Update()
             {
+                // Access the UI manager via the singleton instance.
+                ElevatorUIManager uiManager = ElevatorUIManager.Instance;
+
+
+
                 // IF BOTH IS NOT ACTIVE
                 if (!button.IsActive && !SimpleElevatorUi.IsPanelActive()) { return; }
 
@@ -91,6 +96,59 @@ namespace SimpleElevator
                 }
 
             }
+        }
+        [RegisterTypeInIl2Cpp]
+        internal class ElevatorUIManager : MonoBehaviour
+        {
+            private static ElevatorUIManager instance;
+
+            public static ElevatorUIManager Instance
+            {
+                get
+                {
+                    if (instance == null)
+                    {
+                        GameObject managerObject = new GameObject("ElevatorUIManager");
+                        instance = managerObject.AddComponent<ElevatorUIManager>();
+                    }
+                    return instance;
+                }
+            }
+
+            private void Awake()
+            {
+                if (instance == null)
+                {
+                    instance = this;
+                    DontDestroyOnLoad(gameObject);
+                }
+                else if (instance != this)
+                {
+                    Destroy(gameObject); // Ensures multiple instances aren't present.
+                }
+            }
+
+            private ElevatorButtonController activeElevator;
+
+            public ElevatorButtonController ActiveElevator
+            {
+                get => activeElevator;
+                set
+                {
+                    if (activeElevator != null)
+                    {
+                        // Handle deactivation logic if needed
+                    }
+
+                    activeElevator = value;
+
+                    if (activeElevator != null)
+                    {
+                        // Handle activation logic if needed
+                    }
+                }
+            }
+
         }
     }
 }
