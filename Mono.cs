@@ -20,7 +20,6 @@ namespace SimpleElevator
             private Vector3 targetPosition;
             private bool shouldMoveElevator = false;
             private Vector3 startPosition;
-            private bool elevatorStopped = false;
 
             private float[] floorHeights = { 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30 };  // Add more values if needed. 
 
@@ -67,17 +66,22 @@ namespace SimpleElevator
                     {
                         float step = moveSpeed * Time.deltaTime;
                         Vector3 moveDirection = (targetPosition.y > preFabGameObject.transform.position.y) ? Vector3.up : Vector3.down;
-                        preFabGameObject.transform.position += moveDirection * step;
+                        Vector3 nextStepPosition = preFabGameObject.transform.position + moveDirection * step;
+
+                        // Check if the next step would overshoot the target
+                        if (moveDirection == Vector3.up && nextStepPosition.y > targetPosition.y || moveDirection == Vector3.down && nextStepPosition.y < targetPosition.y)
+                        {
+                            preFabGameObject.transform.position = targetPosition;
+                            shouldMoveElevator = false;
+                        }
+                        else
+                        {
+                            preFabGameObject.transform.position += moveDirection * step;
+                        }
                     }
                 }
-
-                if (!elevatorStopped && Vector3.Distance(preFabGameObject.transform.position, targetPosition) <= 0.5f)
-                {
-                    GenericFunctions.PostLogsToConsole("shouldMoveElevator = false 0.5f");
-                    shouldMoveElevator = false;
-                    elevatorStopped = true; // set the flag so we don't log again
-                }
             }
+
 
             private void HandleUserInputsWhileUIIsActive()
             {
