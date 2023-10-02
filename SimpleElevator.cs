@@ -44,8 +44,6 @@ public class SimpleElevator : SonsMod
 
         sotfShader = Shader.Find("Sons/HDRPLit");
 
-        // Ensure the ElevatorUIManager is instantiated
-        var elevatorManager = ElevatorUIManager.Instance;
         GenericFunctions.PostLogsToConsole("ElevatorUIManager instantiated");
     }
 
@@ -98,7 +96,6 @@ public class SimpleElevator : SonsMod
 
                 script_for_ui_element.button = linkUi;
                 script_for_ui_element.preFabGameObject = game_obj_instance;
-                script_for_ui_element.buttonController = script_for_ui_element;
             }
             else
             {

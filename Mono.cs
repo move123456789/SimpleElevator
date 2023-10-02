@@ -9,146 +9,121 @@ namespace SimpleElevator
         [RegisterTypeInIl2Cpp]
         internal class ElevatorButtonController : MonoBehaviour
         {
+            internal static ElevatorButtonController activeButtonController;
             internal LinkUiElement button;
-            internal ElevatorButtonController buttonController;
             internal GameObject preFabGameObject;
             internal static int currentFloor;
             internal static int gotoFloor;
-            internal static int maxFloor;
+            internal static int maxFloor = 15; // You might want to adjust this as per your requirement.
+
 
             private void Update()
             {
-                // Access the UI manager via the singleton instance.
-                ElevatorUIManager uiManager = ElevatorUIManager.Instance;
+                // Check if the UI Panel is active
+                bool isUIPanelActive = SimpleElevatorUi.IsPanelActive();
 
-
-
-                // IF BOTH IS NOT ACTIVE
-                if (!button.IsActive && !SimpleElevatorUi.IsPanelActive()) { return; }
-
-                // IF UI IS ACTIVE BUT LINKUIELEMENT IS NOT
-                //if (SimpleElevatorUi.IsPanelActive() && !button.IsActive)
-                //{
-                //    SimpleElevatorUi.ClosePanel("ElevatorUi");
-                //}
-
-                // IF BOTH ARE ACTIVE
-                if (SimpleElevatorUi.IsPanelActive() && button.IsActive)
+                if (this != activeButtonController && isUIPanelActive)
                 {
-                    float scrollDelta = Input.GetAxis("Mouse ScrollWheel");
-
-                    if (scrollDelta > 0f)
-                    {
-                        if (gotoFloor == 15)
-                        {
-                            SimpleElevatorUi.SetGotoFloorMessage(gotoFloor);
-                            _ = SimpleElevatorUi.SendUiMessage(SimpleElevatorUi.SendMessage, $"15 FLOORS MAX");
-                            return;
-                        }
-                        gotoFloor++;
-                        SimpleElevatorUi.SetGotoFloorMessage(gotoFloor);
-                    }
-                    else if (scrollDelta < 0f)
-                    {
-                        if (gotoFloor == 0)
-                        {
-                            SimpleElevatorUi.SetGotoFloorMessage(gotoFloor);
-                            _ = SimpleElevatorUi.SendUiMessage(SimpleElevatorUi.SendMessage, $"YOU CANT GO UNDER FLOOR 0");
-                            return;
-                        }
-                        gotoFloor--;
-                        SimpleElevatorUi.SetGotoFloorMessage(gotoFloor);
-                    }
-
-                    if (Input.GetKeyDown(KeyCode.Escape))
-                    {
-                        SimpleElevatorUi.ClosePanel("ElevatorUi");
-                    }
-
-                    if (Input.GetKeyDown(KeyCode.LeftShift))
-                    {
-                        _ = SimpleElevatorUi.SendUiMessage(SimpleElevatorUi.SendMessage, $"Moving Started");
-                        // NEED TO ADD DELAY
-                        SimpleElevatorUi.ClosePanel("ElevatorUi");
-                    }
+                    return; // Do nothing if this is not the active button and UI panel is active.
                 }
 
-                // If E is pressed while UiButton Is Active and Panelet er av
-                if (Input.GetKeyDown(KeyCode.E) && button.IsActive && !SimpleElevatorUi.IsPanelActive())
+                // If the button is not active and the UI Panel is not active, exit.
+                if (!button.IsActive && !isUIPanelActive) { return; }
+
+                // If the UI Panel is active but the button is not, close the UI Panel.
+                if (isUIPanelActive && !button.IsActive)
                 {
-                    GenericFunctions.PostLogsToConsole("Pressed UI BUTTON");
-                    SimpleElevatorUi.SetFloorNumber(currentFloor);
-                    currentFloor = gotoFloor;
-                    SimpleElevatorUi.TogglePanelUi("ElevatorUi");
-
-                    //switch (GenericFunctions.hostMode)
-                    //{
-                    //    case GenericFunctions.SimpleElevatorSaveGameType.SinglePlayer:
-                    //        return;
-                    //    case GenericFunctions.SimpleElevatorSaveGameType.Multiplayer:
-                    //        return;
-                    //    case GenericFunctions.SimpleElevatorSaveGameType.MultiplayerClient:
-                    //        return;
-                    //    case GenericFunctions.SimpleElevatorSaveGameType.NotIngame:
-                    //        return;
-
-                    //}
+                    SimpleElevatorUi.ClosePanel("ElevatorUi");
+                    return; // Exit here so we don't process other inputs when the UI should be closed.
                 }
 
+                // If both are active, handle user inputs.
+                if (isUIPanelActive && button.IsActive)
+                {
+                    HandleUserInputsWhileUIIsActive();
+                }
+
+                // If E is pressed while the button is active and the UI Panel is off.
+                if (Input.GetKeyDown(KeyCode.E) && button.IsActive && !isUIPanelActive)
+                {
+                    HandleEKeyPressed();
+                }
+            }
+
+            private void HandleUserInputsWhileUIIsActive()
+            {
+                float scrollDelta = Input.GetAxis("Mouse ScrollWheel");
+
+                if (scrollDelta > 0f)
+                {
+                    if (gotoFloor >= maxFloor)
+                    {
+                        SimpleElevatorUi.SetGotoFloorMessage(gotoFloor);
+                        _ = SimpleElevatorUi.SendUiMessage(SimpleElevatorUi.SendMessage, $"{maxFloor} FLOORS MAX");
+                        return;
+                    }
+                    gotoFloor++;
+                    SimpleElevatorUi.SetGotoFloorMessage(gotoFloor);
+                }
+                else if (scrollDelta < 0f)
+                {
+                    if (gotoFloor <= 0)
+                    {
+                        SimpleElevatorUi.SetGotoFloorMessage(gotoFloor);
+                        _ = SimpleElevatorUi.SendUiMessage(SimpleElevatorUi.SendMessage, "YOU CAN'T GO UNDER FLOOR 0");
+                        return;
+                    }
+                    gotoFloor--;
+                    SimpleElevatorUi.SetGotoFloorMessage(gotoFloor);
+                }
+
+                if (Input.GetKeyDown(KeyCode.Escape))
+                {
+                    SimpleElevatorUi.ClosePanel("ElevatorUi");
+                }
+
+                if (Input.GetKeyDown(KeyCode.LeftShift))
+                {
+                    _ = SimpleElevatorUi.SendUiMessage(SimpleElevatorUi.SendMessage, "Moving Started");
+                    // Add delay here if necessary
+                    SimpleElevatorUi.ClosePanel("ElevatorUi");
+                }
+            }
+
+            private void HandleEKeyPressed()
+            {
+                // Activate this button
+                activeButtonController = this;
+
+                GenericFunctions.PostLogsToConsole("Pressed UI BUTTON");
+                SimpleElevatorUi.SetFloorNumber(currentFloor);
+                currentFloor = gotoFloor;
+                SimpleElevatorUi.TogglePanelUi("ElevatorUi");
+                // Here, I assume GenericFunctions.hostMode is some enum indicating the game's state or mode.
+                // I've commented it out since you commented it in the provided code, but you can uncomment and adjust as needed.
+
+                /*
+                switch (GenericFunctions.hostMode)
+                {
+                    case GenericFunctions.SimpleElevatorSaveGameType.SinglePlayer:
+                        // Handle single-player logic here
+                        break;
+
+                    case GenericFunctions.SimpleElevatorSaveGameType.Multiplayer:
+                        // Handle multiplayer logic here
+                        break;
+
+                    case GenericFunctions.SimpleElevatorSaveGameType.MultiplayerClient:
+                        // Handle multiplayer client logic here
+                        break;
+
+                    case GenericFunctions.SimpleElevatorSaveGameType.NotIngame:
+                        // Handle not-in-game logic here
+                        break;
+                }
+                */
             }
         }
-        [RegisterTypeInIl2Cpp]
-        internal class ElevatorUIManager : MonoBehaviour
-        {
-            private static ElevatorUIManager instance;
 
-            public static ElevatorUIManager Instance
-            {
-                get
-                {
-                    if (instance == null)
-                    {
-                        GameObject managerObject = new GameObject("ElevatorUIManager");
-                        instance = managerObject.AddComponent<ElevatorUIManager>();
-                    }
-                    return instance;
-                }
-            }
-
-            private void Awake()
-            {
-                if (instance == null)
-                {
-                    instance = this;
-                    DontDestroyOnLoad(gameObject);
-                }
-                else if (instance != this)
-                {
-                    Destroy(gameObject); // Ensures multiple instances aren't present.
-                }
-            }
-
-            private ElevatorButtonController activeElevator;
-
-            public ElevatorButtonController ActiveElevator
-            {
-                get => activeElevator;
-                set
-                {
-                    if (activeElevator != null)
-                    {
-                        // Handle deactivation logic if needed
-                    }
-
-                    activeElevator = value;
-
-                    if (activeElevator != null)
-                    {
-                        // Handle activation logic if needed
-                    }
-                }
-            }
-
-        }
     }
 }
