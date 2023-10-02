@@ -14,14 +14,15 @@ namespace SimpleElevator
             internal GameObject preFabGameObject;
             internal static int currentFloor;
             internal static int gotoFloor;
-            internal static int maxFloor = 15; // You might want to adjust this as per your requirement.
-            internal static int previousFloor;
-
+            internal static int maxFloor = 15;
 
             public float moveSpeed = 2f;
             private Vector3 targetPosition;
             private bool shouldMoveElevator = false;
             private Vector3 startPosition;
+            private bool elevatorStopped = false;
+
+            private float[] floorHeights = { 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30 };  // Add more values if needed. 
 
             public void InitializeController(GameObject elevatorObject)
             {
@@ -30,57 +31,51 @@ namespace SimpleElevator
                 GenericFunctions.PostLogsToConsole($"Initialized start position: {startPosition}");
             }
 
-
             private void Update()
             {
-                // Check if the UI Panel is active
-                bool isUIPanelActive = SimpleElevatorUi.IsPanelActive();
 
+                // For movement of the elevator, it shouldn't matter if the button/UI is active.
+                MoveElevator();
+
+                bool isUIPanelActive = SimpleElevatorUi.IsPanelActive();
                 if (this != activeButtonController && isUIPanelActive)
                 {
-                    return; // Do nothing if this is not the active button and UI panel is active.
+                    return;
                 }
 
-                // If the button is not active and the UI Panel is not active, exit.
                 if (!button.IsActive && !isUIPanelActive) { return; }
-
-                // If the UI Panel is active but the button is not, close the UI Panel.
                 if (isUIPanelActive && !button.IsActive)
                 {
                     SimpleElevatorUi.ClosePanel("ElevatorUi");
-                    return; // Exit here so we don't process other inputs when the UI should be closed.
+                    return;
                 }
-
-                // If both are active, handle user inputs.
                 if (isUIPanelActive && button.IsActive)
                 {
                     HandleUserInputsWhileUIIsActive();
                 }
-
-                // If E is pressed while the button is active and the UI Panel is off.
                 if (Input.GetKeyDown(KeyCode.E) && button.IsActive && !isUIPanelActive)
                 {
                     HandleEKeyPressed();
                 }
+            }
 
+            private void MoveElevator()
+            {
                 if (shouldMoveElevator)
                 {
                     if (GenericFunctions.hostMode == GenericFunctions.SimpleElevatorSaveGameType.SinglePlayer)
                     {
-                        float currentDistance = Vector3.Distance(preFabGameObject.transform.position, targetPosition);
-                        GenericFunctions.PostLogsToConsole($"Current Distance to Target: {currentDistance}, Target Position: {targetPosition}");
-
                         float step = moveSpeed * Time.deltaTime;
                         Vector3 moveDirection = (targetPosition.y > preFabGameObject.transform.position.y) ? Vector3.up : Vector3.down;
                         preFabGameObject.transform.position += moveDirection * step;
-
                     }
                 }
 
-                if (Vector3.Distance(preFabGameObject.transform.position, targetPosition) <= 0.5f)
+                if (!elevatorStopped && Vector3.Distance(preFabGameObject.transform.position, targetPosition) <= 0.5f)
                 {
                     GenericFunctions.PostLogsToConsole("shouldMoveElevator = false 0.5f");
                     shouldMoveElevator = false;
+                    elevatorStopped = true; // set the flag so we don't log again
                 }
             }
 
@@ -88,25 +83,13 @@ namespace SimpleElevator
             {
                 float scrollDelta = Input.GetAxis("Mouse ScrollWheel");
 
-                if (scrollDelta > 0f)
+                if (scrollDelta > 0f && gotoFloor < maxFloor)
                 {
-                    if (gotoFloor >= maxFloor)
-                    {
-                        SimpleElevatorUi.SetGotoFloorMessage(gotoFloor);
-                        _ = SimpleElevatorUi.SendUiMessage(SimpleElevatorUi.SendMessage, $"{maxFloor} FLOORS MAX");
-                        return;
-                    }
                     gotoFloor++;
                     SimpleElevatorUi.SetGotoFloorMessage(gotoFloor);
                 }
-                else if (scrollDelta < 0f)
+                else if (scrollDelta < 0f && gotoFloor > 0)
                 {
-                    if (gotoFloor <= 0)
-                    {
-                        SimpleElevatorUi.SetGotoFloorMessage(gotoFloor);
-                        _ = SimpleElevatorUi.SendUiMessage(SimpleElevatorUi.SendMessage, "YOU CAN'T GO UNDER FLOOR 0");
-                        return;
-                    }
                     gotoFloor--;
                     SimpleElevatorUi.SetGotoFloorMessage(gotoFloor);
                 }
@@ -118,79 +101,46 @@ namespace SimpleElevator
 
                 if (Input.GetKeyDown(KeyCode.LeftShift))
                 {
-                    _ = SimpleElevatorUi.SendUiMessage(SimpleElevatorUi.SendMessage, "Moving Started");
-                    // Add delay here if necessary
                     SimpleElevatorUi.ClosePanel("ElevatorUi");
-
                     switch (GenericFunctions.hostMode)
                     {
                         case GenericFunctions.SimpleElevatorSaveGameType.SinglePlayer:
-                            // Handle single-player logic here
-
                             SimpleElevatorUi.SetGotoFloorMessage(gotoFloor);
-                            GenericFunctions.PostLogsToConsole($"SetGotoFloorMessage to: {gotoFloor}");
-                            GenericFunctions.PostLogsToConsole($"Before moving elevator: currentFloor = {currentFloor}, gotoFloor = {gotoFloor}");
-                            previousFloor = currentFloor;  // Keep track of the previous floor before updating the current floor
                             currentFloor = gotoFloor;
                             SimpleElevatorUi.SetFloorNumber(currentFloor);
-                            GenericFunctions.PostLogsToConsole($"SetFloorNumber to: {currentFloor}");
-
-                            // Move the elevator to the selected floor
-                            GenericFunctions.PostLogsToConsole($"Going to floor: {gotoFloor}");
                             MoveElevatorToFloor(gotoFloor);
-
-
-
                             break;
 
                         case GenericFunctions.SimpleElevatorSaveGameType.Multiplayer:
-                            // Handle multiplayer logic here
                             break;
-
                         case GenericFunctions.SimpleElevatorSaveGameType.MultiplayerClient:
-                            // Handle multiplayer client logic here
                             break;
-
                         case GenericFunctions.SimpleElevatorSaveGameType.NotIngame:
-                            // Handle not-in-game logic here
                             break;
                     }
                 }
-                
             }
 
             private void HandleEKeyPressed()
             {
-
-                // Activate this button
                 activeButtonController = this;
-
-                GenericFunctions.PostLogsToConsole("Pressed UI BUTTON");
-                //gotoFloor = 0;
                 SimpleElevatorUi.SetFloorNumber(currentFloor);
                 SimpleElevatorUi.TogglePanelUi("ElevatorUi");
             }
 
             private void MoveElevatorToFloor(int floorNumber)
             {
-                GenericFunctions.PostLogsToConsole("Start position: " + startPosition);
-
-                if (floorNumber == 0)
+                if (floorNumber < 0 || floorNumber > maxFloor)
                 {
-                    targetPosition = startPosition;
-                }
-                else
-                {
-                    targetPosition = new Vector3(startPosition.x, startPosition.y + (floorNumber - previousFloor) * 2, startPosition.z);
+                    GenericFunctions.PostLogsToConsole("Invalid floor number!");
+                    return;
                 }
 
-                GenericFunctions.PostLogsToConsole("Target position: " + targetPosition);
-
-                // Start moving the elevator
+                float desiredHeight = startPosition.y + (floorNumber * 2);
+                targetPosition = new Vector3(startPosition.x, desiredHeight, startPosition.z);
                 shouldMoveElevator = true;
             }
 
         }
-
     }
 }
