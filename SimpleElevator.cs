@@ -61,13 +61,17 @@ public class SimpleElevator : SonsMod
             GenericFunctions.PostLogsToConsole("Pressed RightControl");
             // Instantiate the 3D model and apply the texture
             Vector3 spawnPosition = LocalPlayer.Transform.position; // Use player's position
-            Quaternion spawnRotation = LocalPlayer.Transform.rotation; // Use player's rotation
+            //Quaternion spawnRotation = LocalPlayer.Transform.rotation; // Use player's rotation
+            Quaternion spawnRotation = new Quaternion(0, 0, 0, 0); // Use predetermined rotation
 
             GameObject game_obj_instance = UnityEngine.Object.Instantiate(Assets.MainElevator, spawnPosition, spawnRotation);
             if (game_obj_instance != null)
             {
                 ElevatorButtonController script_for_ui_element = game_obj_instance.transform.GetChild(1).gameObject.AddComponent<ElevatorButtonController>();
-                 
+
+                script_for_ui_element.InitializeController(game_obj_instance); // ADDS INITILISED GAMEOBJECT
+                GenericFunctions.PostLogsToConsole($"Prefab Spawned In Linked name: {game_obj_instance.name}");
+
 
                 game_obj_instance.SetActive(true);
                 game_obj_instance.layer = LayerMask.NameToLayer("Default");
@@ -95,7 +99,7 @@ public class SimpleElevator : SonsMod
                 linkUi.enabled = true;
 
                 script_for_ui_element.button = linkUi;
-                script_for_ui_element.preFabGameObject = game_obj_instance;
+                
             }
             else
             {

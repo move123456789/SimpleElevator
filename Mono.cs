@@ -15,6 +15,20 @@ namespace SimpleElevator
             internal static int currentFloor;
             internal static int gotoFloor;
             internal static int maxFloor = 15; // You might want to adjust this as per your requirement.
+            internal static int previousFloor;
+
+
+            public float moveSpeed = 2f;
+            private Vector3 targetPosition;
+            private bool shouldMoveElevator = false;
+            private Vector3 startPosition;
+
+            public void InitializeController(GameObject elevatorObject)
+            {
+                preFabGameObject = elevatorObject;
+                startPosition = preFabGameObject.transform.position;
+                GenericFunctions.PostLogsToConsole($"Initialized start position: {startPosition}");
+            }
 
 
             private void Update()
@@ -47,6 +61,26 @@ namespace SimpleElevator
                 if (Input.GetKeyDown(KeyCode.E) && button.IsActive && !isUIPanelActive)
                 {
                     HandleEKeyPressed();
+                }
+
+                if (shouldMoveElevator)
+                {
+                    if (GenericFunctions.hostMode == GenericFunctions.SimpleElevatorSaveGameType.SinglePlayer)
+                    {
+                        float currentDistance = Vector3.Distance(preFabGameObject.transform.position, targetPosition);
+                        GenericFunctions.PostLogsToConsole($"Current Distance to Target: {currentDistance}, Target Position: {targetPosition}");
+
+                        float step = moveSpeed * Time.deltaTime;
+                        Vector3 moveDirection = (targetPosition.y > preFabGameObject.transform.position.y) ? Vector3.up : Vector3.down;
+                        preFabGameObject.transform.position += moveDirection * step;
+
+                    }
+                }
+
+                if (Vector3.Distance(preFabGameObject.transform.position, targetPosition) <= 0.5f)
+                {
+                    GenericFunctions.PostLogsToConsole("shouldMoveElevator = false 0.5f");
+                    shouldMoveElevator = false;
                 }
             }
 
@@ -87,42 +121,75 @@ namespace SimpleElevator
                     _ = SimpleElevatorUi.SendUiMessage(SimpleElevatorUi.SendMessage, "Moving Started");
                     // Add delay here if necessary
                     SimpleElevatorUi.ClosePanel("ElevatorUi");
+
+                    switch (GenericFunctions.hostMode)
+                    {
+                        case GenericFunctions.SimpleElevatorSaveGameType.SinglePlayer:
+                            // Handle single-player logic here
+
+                            SimpleElevatorUi.SetGotoFloorMessage(gotoFloor);
+                            GenericFunctions.PostLogsToConsole($"SetGotoFloorMessage to: {gotoFloor}");
+                            GenericFunctions.PostLogsToConsole($"Before moving elevator: currentFloor = {currentFloor}, gotoFloor = {gotoFloor}");
+                            previousFloor = currentFloor;  // Keep track of the previous floor before updating the current floor
+                            currentFloor = gotoFloor;
+                            SimpleElevatorUi.SetFloorNumber(currentFloor);
+                            GenericFunctions.PostLogsToConsole($"SetFloorNumber to: {currentFloor}");
+
+                            // Move the elevator to the selected floor
+                            GenericFunctions.PostLogsToConsole($"Going to floor: {gotoFloor}");
+                            MoveElevatorToFloor(gotoFloor);
+
+
+
+                            break;
+
+                        case GenericFunctions.SimpleElevatorSaveGameType.Multiplayer:
+                            // Handle multiplayer logic here
+                            break;
+
+                        case GenericFunctions.SimpleElevatorSaveGameType.MultiplayerClient:
+                            // Handle multiplayer client logic here
+                            break;
+
+                        case GenericFunctions.SimpleElevatorSaveGameType.NotIngame:
+                            // Handle not-in-game logic here
+                            break;
+                    }
                 }
+                
             }
 
             private void HandleEKeyPressed()
             {
+
                 // Activate this button
                 activeButtonController = this;
 
                 GenericFunctions.PostLogsToConsole("Pressed UI BUTTON");
+                //gotoFloor = 0;
                 SimpleElevatorUi.SetFloorNumber(currentFloor);
-                currentFloor = gotoFloor;
                 SimpleElevatorUi.TogglePanelUi("ElevatorUi");
-                // Here, I assume GenericFunctions.hostMode is some enum indicating the game's state or mode.
-                // I've commented it out since you commented it in the provided code, but you can uncomment and adjust as needed.
-
-                /*
-                switch (GenericFunctions.hostMode)
-                {
-                    case GenericFunctions.SimpleElevatorSaveGameType.SinglePlayer:
-                        // Handle single-player logic here
-                        break;
-
-                    case GenericFunctions.SimpleElevatorSaveGameType.Multiplayer:
-                        // Handle multiplayer logic here
-                        break;
-
-                    case GenericFunctions.SimpleElevatorSaveGameType.MultiplayerClient:
-                        // Handle multiplayer client logic here
-                        break;
-
-                    case GenericFunctions.SimpleElevatorSaveGameType.NotIngame:
-                        // Handle not-in-game logic here
-                        break;
-                }
-                */
             }
+
+            private void MoveElevatorToFloor(int floorNumber)
+            {
+                GenericFunctions.PostLogsToConsole("Start position: " + startPosition);
+
+                if (floorNumber == 0)
+                {
+                    targetPosition = startPosition;
+                }
+                else
+                {
+                    targetPosition = new Vector3(startPosition.x, startPosition.y + (floorNumber - previousFloor) * 2, startPosition.z);
+                }
+
+                GenericFunctions.PostLogsToConsole("Target position: " + targetPosition);
+
+                // Start moving the elevator
+                shouldMoveElevator = true;
+            }
+
         }
 
     }
