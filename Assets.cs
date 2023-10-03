@@ -11,6 +11,9 @@ namespace SimpleElevator
         [AssetReference("MainElevator")]
         public static GameObject MainElevator { get; set; }
 
+        [AssetReference("MainElevatorStructureNode")]
+        public static GameObject MainElevatorStructureNode { get; set; }
+
         [AssetReference("ElevatorControlPanel")]
         public static GameObject ElevatorControlPanel { get; set; }
 

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using RedLoader;
 using Sons.Gui.Input;
+using TheForest.Utils;
 
 namespace SimpleElevator
 {
@@ -145,6 +146,132 @@ namespace SimpleElevator
                 shouldMoveElevator = true;
             }
 
+            public void MoveElevatorToPosition(float desiredHeight)
+            {
+                targetPosition = new Vector3(startPosition.x, desiredHeight, startPosition.z);
+                shouldMoveElevator = true;
+            }
+
+        }
+
+
+        [RegisterTypeInIl2Cpp]
+        internal class ElevatorCallButton : MonoBehaviour
+        {
+            public float maxRayDistance = 100.0f;  // Maximum distance for raycasting.
+            internal LinkUiElement callButton;
+            internal GameObject preFabGameObjectControlPanel;
+            private static ElevatorButtonController lastContactedElevator;
+
+            public void InitializeController(GameObject elevatorControlObject)
+            {
+                preFabGameObjectControlPanel = elevatorControlObject;
+                GenericFunctions.PostLogsToConsole($"Initialized elevatorControlObject");
+            }
+
+            private void Update()
+            {
+                if (!LocalPlayer.IsInWorld) { return; }
+                if (callButton == null) { return; }
+                if (callButton.IsActive && Input.GetKeyDown(KeyCode.E))
+                {
+                    CallElevator();
+                }
+            }
+
+            public void CallElevator()
+            {
+                // Raycast upwards
+                RaycastHit[] hitsUp = Physics.RaycastAll(transform.position, Vector3.up, maxRayDistance);
+                foreach (RaycastHit hit in hitsUp)
+                {
+                    // Log the hit object's name
+                    GenericFunctions.PostLogsToConsole("Raycast hit (Upwards): " + hit.collider.name);
+                    if (hit.collider.name == "ElevatorFloor" || hit.collider.name == "MainElevator(Clone)")
+                    {
+                        // Check the distance to preFabGameObjectControlPanel
+                        float distanceToControlPanel = Vector3.Distance(hit.collider.gameObject.transform.position, preFabGameObjectControlPanel.transform.position);
+                        if (distanceToControlPanel < 1f)
+                        {
+                            GenericFunctions.PostLogsToConsole("Elevator and ControlPanel Are Too Close");
+                            return;
+                        }
+                        GenericFunctions.PostLogsToConsole("ElevatorFloor Found");
+                        if (hit.collider.name == "ElevatorFloor")
+                        {
+                            lastContactedElevator = hit.collider.gameObject.transform.GetParent().gameObject.GetComponentInChildren<ElevatorButtonController>();
+                        } 
+                        else if (hit.collider.name == "MainElevator(Clone)")
+                        {
+                            lastContactedElevator = hit.collider.gameObject.GetComponentInChildren<ElevatorButtonController>();
+                        }
+                        
+                        if (lastContactedElevator == null)
+                        {
+                            GenericFunctions.PostErrorToConsole("ElevatorButtonController not found on " + hit.collider.gameObject.name);
+                            continue;
+                        }
+                        MoveElevatorToControlPanelPosition();
+                        break; // break out of the loop if we find a hit
+                    }
+                }
+
+                // Raycast downwards
+                RaycastHit[] hitsDown = Physics.RaycastAll(transform.position, Vector3.down, maxRayDistance);
+                foreach (RaycastHit hit in hitsDown)
+                {
+                    // Log the hit object's name
+                    GenericFunctions.PostLogsToConsole("Raycast hit (Downwards): " + hit.collider.name);
+                    if (hit.collider.name == "ElevatorFloor" || hit.collider.name == "ElevatorFloor(Clone)")
+                    {
+                        // Check the distance to preFabGameObjectControlPanel
+                        float distanceToControlPanel = Vector3.Distance(hit.collider.gameObject.transform.position, preFabGameObjectControlPanel.transform.position);
+                        if (distanceToControlPanel < 1f)
+                        {
+                            GenericFunctions.PostLogsToConsole("Elevator and ControlPanel Are Too Close");
+                            return;
+                        }
+                        GenericFunctions.PostLogsToConsole("ElevatorFloor Found");
+                        if (hit.collider.name == "ElevatorFloor")
+                        {
+                            lastContactedElevator = hit.collider.gameObject.transform.GetParent().gameObject.GetComponentInChildren<ElevatorButtonController>();
+                        }
+                        else if (hit.collider.name == "MainElevator(Clone)")
+                        {
+                            lastContactedElevator = hit.collider.gameObject.GetComponentInChildren<ElevatorButtonController>();
+                        }
+                        if (lastContactedElevator == null)
+                        {
+                            GenericFunctions.PostErrorToConsole("ElevatorButtonController not found on " + hit.collider.gameObject.name);
+                            continue;
+                        }
+                        MoveElevatorToControlPanelPosition();
+                        break; // break out of the loop if we find a hit
+                    }
+                }
+            }
+
+            private void MoveElevatorToControlPanelPosition()
+            {
+                GenericFunctions.PostLogsToConsole("IN MoveElevatorToControlPanelPosition()");
+                if (preFabGameObjectControlPanel == null)
+                {
+                    GenericFunctions.PostErrorToConsole("preFabGameObjectControlPanel is not assigned.");
+                    return;
+                }
+                if (lastContactedElevator == null)
+                {
+                    GenericFunctions.PostErrorToConsole("elevator is not assigned.");
+                    return;
+                }
+
+                float desiredHeight = preFabGameObjectControlPanel.transform.position.y;
+                GenericFunctions.PostLogsToConsole($"MoveElevatorToControlPanelPosition() -> desiredHeight: {desiredHeight}");
+                // Assuming you have a reference to the ElevatorButtonController class
+                lastContactedElevator.MoveElevatorToPosition(desiredHeight);
+                GenericFunctions.PostLogsToConsole("lastContactedElevator.MoveElevatorToPosition Started");
+
+            }    
         }
     }
 }

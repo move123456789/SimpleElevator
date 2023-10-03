@@ -48,7 +48,7 @@ public class SimpleElevator : SonsMod
 
     protected void OnUpdate()
     {
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        if (Input.GetKeyDown(KeyCode.LeftArrow) && Config.DebugLogging.Value)
         {
             GenericFunctions.PostLogsToConsole("Pressed LeftArrow");
             SimpleElevatorUi.TogglePanelUi("ElevatorUi");

@@ -48,6 +48,9 @@
       <Reference Include="Sons.Gui.Options">
         <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Sons Of The Forest\_RedLoader\Game\Sons.Gui.Options.dll</HintPath>
       </Reference>
+      <Reference Include="Sons.Physics">
+        <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Sons Of The Forest\_RedLoader\Game\Sons.Physics.dll</HintPath>
+      </Reference>
       <Reference Include="Sons.Save">
         <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Sons Of The Forest\_RedLoader\Game\Sons.Save.dll</HintPath>
       </Reference>
@@ -74,6 +77,12 @@
       </Reference>
       <Reference Include="UnityEngine.InputLegacyModule">
         <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Sons Of The Forest\_RedLoader\Game\UnityEngine.InputLegacyModule.dll</HintPath>
+      </Reference>
+      <Reference Include="UnityEngine.Physics2DModule">
+        <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Sons Of The Forest\_RedLoader\Game\UnityEngine.Physics2DModule.dll</HintPath>
+      </Reference>
+      <Reference Include="UnityEngine.PhysicsModule">
+        <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Sons Of The Forest\_RedLoader\Game\UnityEngine.PhysicsModule.dll</HintPath>
       </Reference>
       <Reference Include="UnityEngine.UI">
         <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\Sons Of The Forest\_RedLoader\Game\UnityEngine.UI.dll</HintPath>

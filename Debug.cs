@@ -90,6 +90,11 @@ namespace SimpleElevator
             GameObject game_obj_instance = UnityEngine.Object.Instantiate(Assets.ElevatorControlPanel, spawnPos, spawnRotation);
             if (game_obj_instance != null)
             {
+                ElevatorCallButton script_for_elevator_call = game_obj_instance.AddComponent<ElevatorCallButton>();
+
+                script_for_elevator_call.InitializeController(game_obj_instance); // ADDS INITILISED GAMEOBJECT
+                GenericFunctions.PostLogsToConsole($"Prefab Spawned In Linked name: {game_obj_instance.name}");
+
                 game_obj_instance.SetActive(true);
                 game_obj_instance.layer = LayerMask.NameToLayer("Default");
 
@@ -102,15 +107,17 @@ namespace SimpleElevator
 
                 LinkUiElement linkUi = game_obj_instance.AddComponent<LinkUiElement>();
                 linkUi._applyMaterial = false;
-                linkUi._applyText = true;
                 linkUi._applyTexture = true;
                 linkUi._texture = Assets.LinkUiIcon;
                 linkUi._maxDistance = 2;
                 linkUi._worldSpaceOffset = new Vector3(0, (float)0.5, 0);
                 linkUi._text = "Call Elevator";
                 linkUi._uiElementId = "screen.take";
+                linkUi._applyText = true;
                 linkUi.enabled = false;
                 linkUi.enabled = true;
+
+                script_for_elevator_call.callButton = linkUi;
 
             }
             else
