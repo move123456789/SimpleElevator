@@ -1,4 +1,6 @@
-﻿using Sons.Gui.Input;
+﻿using Construction;
+using Sons.Crafting.Structures;
+using Sons.Gui.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +40,10 @@ namespace SimpleElevator
                 Quaternion rotation = Quaternion.Euler(270, 0, 0);
                 SpawnElevatorControlPanel(spawnPos, rotation);
             }
+            else if (prefabName == Assets.MainElevatorStructureNode)
+            {
+                SpawnElevatorStructureNode(spawnPos, spawnRotation);
+            }
         }
 
         private static void SpawnElevator(Vector3 spawnPos, Quaternion spawnRotation)
@@ -75,6 +81,58 @@ namespace SimpleElevator
                 linkUi.enabled = true;
 
                 script_for_ui_element.button = linkUi;
+
+            }
+            else
+            {
+                GenericFunctions.PostErrorToConsole("Failed to instantiate model!");
+            }
+        }
+
+        internal static GameObject DeerHideRugStructureNode;
+
+        private static void SpawnElevatorStructureNode(Vector3 spawnPos, Quaternion spawnRotation)
+        {
+            // Instantiate the 3D model and apply the texture
+
+            GameObject game_obj_instance = UnityEngine.Object.Instantiate(Assets.MainElevatorStructureNode, spawnPos, spawnRotation);
+            if (game_obj_instance != null)
+            {
+
+                GenericFunctions.PostLogsToConsole($"Prefab Spawned In Linked name: {game_obj_instance.name}");
+
+                game_obj_instance.SetActive(true);
+                game_obj_instance.layer = LayerMask.NameToLayer("Default");
+
+                // Structure Crafting Node
+                StructureCraftingNode structure_crafting_node = game_obj_instance.AddComponent<StructureCraftingNode>();
+
+                // Free From Structure Node Linker
+                FreeFormStructureNodeLinker structure_node_linker = game_obj_instance.AddComponent<FreeFormStructureNodeLinker>();
+
+                // Screw Structure Destruction
+                ScrewStructureDestruction screw_structure_destruction = game_obj_instance.AddComponent<ScrewStructureDestruction>();
+
+                // ElevatorVisibleObject GameObject
+                GameObject main_elevator_inside_ingredients = game_obj_instance.transform.GetChild(0).GetChild(0).gameObject;
+                StructureCraftingNodeIngredient structureCraftingNodeIngredient =  main_elevator_inside_ingredients.AddComponent<StructureCraftingNodeIngredient>();
+
+                StructureGhostSwapper structureGhostSwapper = main_elevator_inside_ingredients.AddComponent<StructureGhostSwapper>();
+
+                if (DeerHideRugStructureNode == null)
+                {
+                    GenericFunctions.PostErrorToConsole("DeerHideRugStructureNode, trying to find clone instead");
+                    Debug.DeerHideRugStructureNode = GameObject.Find("DeerHideRugStructureNode(Clone)");
+                }
+
+                if (DeerHideRugStructureNode == null) { GenericFunctions.PostErrorToConsole("DeerHideRugStructureNode == null"); return; }
+                GameObject structureInteractionObjects_from_deerHide = DeerHideRugStructureNode.transform.GetChild(1).gameObject;
+
+                // Instantiate a copy of the object
+                GameObject copiedObject = UnityEngine.Object.Instantiate(structureInteractionObjects_from_deerHide);
+
+                // Set the parent of the instantiated object to game_obj_instance
+                copiedObject.transform.SetParent(game_obj_instance.transform);
 
             }
             else

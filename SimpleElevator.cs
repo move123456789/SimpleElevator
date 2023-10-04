@@ -44,6 +44,9 @@ public class SimpleElevator : SonsMod
         // This is called once the player spawns in the world and gains control.
 
         Debug.sotfShader = Shader.Find("Sons/HDRPLit");
+
+        // FOR TEST FINDING
+        Debug.DeerHideRugStructureNode = GameObject.Find("DeerHideRugStructureNode");
     }
 
     protected void OnUpdate()
@@ -64,6 +67,11 @@ public class SimpleElevator : SonsMod
         {
             GenericFunctions.PostLogsToConsole("Pressed DownArrow");
             Debug.SpawnPrefab(Assets.ElevatorControlPanel);
+        }
+        if (Input.GetKeyDown(KeyCode.PageDown))
+        {
+            GenericFunctions.PostLogsToConsole("Pressed PageDown");
+            Debug.SpawnPrefab(Assets.MainElevatorStructureNode);
         }
     }
 
