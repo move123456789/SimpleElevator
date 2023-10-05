@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using TheForest.Utils;
 using UnityEngine;
 using static SimpleElevator.Mono;
+using static SimpleElevator.MonoNodePrefab;
 
 namespace SimpleElevator
 {
@@ -104,6 +105,10 @@ namespace SimpleElevator
                 game_obj_instance.SetActive(true);
                 game_obj_instance.layer = LayerMask.NameToLayer("Default");
 
+                // Adding My Own NodePrefabController
+                NodePrefabController nodePrefabController = game_obj_instance.AddComponent<NodePrefabController>();
+                
+
                 if (DeerHideRugStructureNode == null) { GenericFunctions.PostErrorToConsole("DeerHideRugStructureNode == null"); return; }
                 GameObject structureInteractionObjects_from_deerHide = DeerHideRugStructureNode.transform.GetChild(1).gameObject;
 
@@ -188,13 +193,6 @@ namespace SimpleElevator
 
                 structure_crafting_node._craftingIngredientLinks = crafting_ingredient_linkList; // ADDS CraftingingredientLink to the StructureCraftingNode
 
-                //StructureRecipe deerHideRug = DeerHideRugStructureNode.GetComponent<StructureCraftingNode>()._recipe.Ingredients;
-                //StructureRecipe myRecipe = new StructureRecipe(deerHideRug);
-                //structure_crafting_node._recipe = myRecipe;
-
-
-
-
                 // Free From Structure Node Linker
                 FreeFormStructureNodeLinker structure_node_linker = game_obj_instance.AddComponent<FreeFormStructureNodeLinker>();
 
@@ -207,6 +205,10 @@ namespace SimpleElevator
 
 
                 structure_crafting_node.GrabExit();
+
+                // My Own NodePrefabController
+                nodePrefabController.nodePrefabController = structure_crafting_node;
+                nodePrefabController.nodePrefab = game_obj_instance;
 
             }
             else
