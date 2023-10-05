@@ -1,11 +1,12 @@
 ﻿using AssemblyCSharp;
 using Endnight.Utilities;
+using Sons.Crafting.Structures;
 using Sons.Gui.Input;
 using SonsSdk;
 using SUI;
 using TheForest.Utils;
 using UnityEngine;
-using static SimpleElevator.Mono;
+
 
 namespace SimpleElevator;
 
@@ -45,8 +46,9 @@ public class SimpleElevator : SonsMod
 
         Debug.sotfShader = Shader.Find("Sons/HDRPLit");
 
-        // FOR TEST FINDING
-        Debug.DeerHideRugStructureNode = GameObject.Find("DeerHideRugStructureNode");
+        // Get Prefab for copying data
+        Debug.DeerHideRugStructureNode = GenericFunctions.FindNodePrefabFromStructureRecipeDatabase(68);
+
     }
 
     protected void OnUpdate()

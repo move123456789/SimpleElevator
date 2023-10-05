@@ -1,4 +1,5 @@
 ﻿using RedLoader;
+using Sons.Crafting.Structures;
 using Sons.Gameplay.GameSetup;
 using Sons.Save;
 using System;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TheForest.Utils;
+using UnityEngine;
 
 namespace SimpleElevator
 {
@@ -49,6 +51,25 @@ namespace SimpleElevator
                     return SimpleElevatorSaveGameType.MultiplayerClient;
             }
             return SimpleElevatorSaveGameType.NotIngame;
+        }
+
+        internal static GameObject FindNodePrefabFromStructureRecipeDatabase(int desiredRecipeId)
+        {
+            StructureRecipe foundRecipe;
+
+            bool success = LocalPlayer.StructureCraftingSystem._recipeDatabase.TryGetRecipeById(desiredRecipeId, out foundRecipe);
+
+            if (success)
+            {
+                GenericFunctions.PostLogsToConsole($"Found recipe with ID {foundRecipe.Id}"); // Assuming StructureRecipe has an Id property
+                return foundRecipe._structureNodePrefab;
+
+            }
+            else
+            {
+                GenericFunctions.PostLogsToConsole($"Recipe with ID {desiredRecipeId} not found.");
+                return null;
+            }
         }
     }
 }

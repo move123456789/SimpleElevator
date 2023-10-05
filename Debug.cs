@@ -104,27 +104,6 @@ namespace SimpleElevator
                 game_obj_instance.SetActive(true);
                 game_obj_instance.layer = LayerMask.NameToLayer("Default");
 
-                // Structure Crafting Node
-                StructureCraftingNode structure_crafting_node = game_obj_instance.AddComponent<StructureCraftingNode>();
-
-                // Free From Structure Node Linker
-                FreeFormStructureNodeLinker structure_node_linker = game_obj_instance.AddComponent<FreeFormStructureNodeLinker>();
-
-                // Screw Structure Destruction
-                ScrewStructureDestruction screw_structure_destruction = game_obj_instance.AddComponent<ScrewStructureDestruction>();
-
-                // ElevatorVisibleObject GameObject
-                GameObject main_elevator_inside_ingredients = game_obj_instance.transform.GetChild(0).GetChild(0).gameObject;
-                StructureCraftingNodeIngredient structureCraftingNodeIngredient =  main_elevator_inside_ingredients.AddComponent<StructureCraftingNodeIngredient>();
-
-                StructureGhostSwapper structureGhostSwapper = main_elevator_inside_ingredients.AddComponent<StructureGhostSwapper>();
-
-                if (DeerHideRugStructureNode == null)
-                {
-                    GenericFunctions.PostErrorToConsole("DeerHideRugStructureNode, trying to find clone instead");
-                    Debug.DeerHideRugStructureNode = GameObject.Find("DeerHideRugStructureNode(Clone)");
-                }
-
                 if (DeerHideRugStructureNode == null) { GenericFunctions.PostErrorToConsole("DeerHideRugStructureNode == null"); return; }
                 GameObject structureInteractionObjects_from_deerHide = DeerHideRugStructureNode.transform.GetChild(1).gameObject;
 
@@ -133,6 +112,101 @@ namespace SimpleElevator
 
                 // Set the parent of the instantiated object to game_obj_instance
                 copiedObject.transform.SetParent(game_obj_instance.transform);
+
+                // Set the localPosition of copiedObject to be the same as game_obj_instance
+                copiedObject.transform.localPosition = Vector3.zero;
+
+                // Structure Crafting Node
+                StructureCraftingNode structure_crafting_node = game_obj_instance.AddComponent<StructureCraftingNode>();
+                GameObject ingredient_ui_template = game_obj_instance.transform.GetChild(1).GetChild(1).GetChild(0).GetChild(0).GetChild(0).gameObject; // IngredientUiTemplate
+                structure_crafting_node._ingredientUiTemplate = ingredient_ui_template;
+
+                //GameObject ingredient_ui = game_obj_instance.transform.GetChild(1).GetChild(1).GetChild(0).GetChild(1).gameObject;  // IngredientUi
+                GameObject ingredient_ui = game_obj_instance.transform.GetChild(1).GetChild(1).GetChild(0).GetChild(0).GetChild(1).gameObject;  // IngredientUi
+
+                // Empty List
+                StructureCraftingNodeIngredientUi structureCraftingNodeIngredientUi = ingredient_ui.GetComponent<StructureCraftingNodeIngredientUi>();
+                var ingredientList = new Il2CppSystem.Collections.Generic.List<StructureCraftingNodeIngredientUi>();
+                ingredientList.Add(structureCraftingNodeIngredientUi);
+                structure_crafting_node._ingredientUi = ingredientList;
+
+
+                StructureCraftingSystem structureCraftingSystem = LocalPlayer.StructureCraftingSystem;
+                structureCraftingSystem._ActiveStructureNode_k__BackingField = structure_crafting_node;  // MAY NEED TO BE REMOVED
+                structureCraftingSystem.ActiveStructureNode = structure_crafting_node;  // MAY NEED TO BE REMOVED
+                structure_crafting_node._structureCraftingSystem = structureCraftingSystem;
+
+                GameObject cancel_Structure_interaction_element = game_obj_instance.transform.GetChild(1).GetChild(1).GetChild(0).GetChild(1).gameObject; // IngredientUiTemplate
+                structure_crafting_node._cancelStructureInteractionElement = cancel_Structure_interaction_element;
+
+                
+
+                // Crafting Ingredient Link And List
+                var crafting_ingredient_linkList = new Il2CppSystem.Collections.Generic.List<StructureCraftingNode.CraftingIngredientLink>(); // LIST FOR StructureCraftingNode
+                StructureCraftingNode.CraftingIngredientLink craftingIngredientLink = new StructureCraftingNode.CraftingIngredientLink();
+                StructureCraftingRecipeIngredient structureCraftingRecipeIngredient = new StructureCraftingRecipeIngredient();
+                structureCraftingRecipeIngredient.Count = 1;
+                structureCraftingRecipeIngredient.ItemId = 472;
+                craftingIngredientLink.Ingredient = structureCraftingRecipeIngredient;
+                // Adding structureCraftingRecipeIngredient To List So It Can Be Used In StructureRecipie
+                var structureCraftingRecipeIngredientLIST = new Il2CppSystem.Collections.Generic.List<StructureCraftingRecipeIngredient>(); 
+                structureCraftingRecipeIngredientLIST.Add(structureCraftingRecipeIngredient);
+
+                // Structure Recipie
+                StructureRecipe structureRecipe = new StructureRecipe();
+                structureRecipe._alignToSurface = true;
+                structureRecipe._anchor = StructureRecipe.AnchorType.Bottom;
+                structureRecipe._blockDismantleInProximityWithPlayersOrActors = false;
+                structureRecipe._builtPrefab = Assets.MainElevator;
+                structureRecipe._canBeRotated = true;
+                structureRecipe._category = StructureRecipe.CategoryType.Utility;
+                structureRecipe._craftCompleteAudioEvent = "event:/ui/ingame/ui_crafting_complete2";
+                structureRecipe._displayName = "Elevator";
+                structureRecipe._forceUp = false;
+                structureRecipe._id = 88;
+                structureRecipe._ingredients = structureCraftingRecipeIngredientLIST;
+                structureRecipe._localizationId = "BLUEPRINT_ELEVATOR";
+                structureRecipe.name = "ElevatorRecipie";
+                structureRecipe._placeMode = StructureRecipe.PlaceModeType.Single;
+                structureRecipe._recipeImage = DeerHideRugStructureNode.GetComponent<StructureCraftingNode>()._recipe.RecipeImage;
+
+                structure_crafting_node._recipe = structureRecipe;
+
+                // ElevatorVisibleObject GameObject
+                GameObject main_elevator_inside_ingredients = game_obj_instance.transform.GetChild(0).GetChild(0).gameObject;
+                StructureCraftingNodeIngredient structureCraftingNodeIngredient = main_elevator_inside_ingredients.AddComponent<StructureCraftingNodeIngredient>();
+                structureCraftingNodeIngredient.SetId(472);
+
+
+                // Crafting Ingredient Link And List Continued
+                var crafting_ingredient_link_ingrediants_List = new Il2CppSystem.Collections.Generic.List<StructureCraftingNodeIngredient>(); // LIST FOR StructureCraftingNode.CraftingIngredientLink_ingredients
+                StructureCraftingNodeIngredient structureCraftingNodeIngredient1 = game_obj_instance.transform.GetChild(0).GetChild(0).gameObject.GetComponent<StructureCraftingNodeIngredient>();
+                crafting_ingredient_link_ingrediants_List.Add(structureCraftingNodeIngredient1); // Adds Ingrediant to List
+                craftingIngredientLink._ingredients = crafting_ingredient_link_ingrediants_List; // craftingIngredientLink._ingredients requires list of ingrediants
+
+                crafting_ingredient_linkList.Add(craftingIngredientLink); // Add CraftingIngredientLink To LIST
+
+                structure_crafting_node._craftingIngredientLinks = crafting_ingredient_linkList; // ADDS CraftingingredientLink to the StructureCraftingNode
+
+                //StructureRecipe deerHideRug = DeerHideRugStructureNode.GetComponent<StructureCraftingNode>()._recipe.Ingredients;
+                //StructureRecipe myRecipe = new StructureRecipe(deerHideRug);
+                //structure_crafting_node._recipe = myRecipe;
+
+
+
+
+                // Free From Structure Node Linker
+                FreeFormStructureNodeLinker structure_node_linker = game_obj_instance.AddComponent<FreeFormStructureNodeLinker>();
+
+                // Screw Structure Destruction
+                ScrewStructureDestruction screw_structure_destruction = game_obj_instance.AddComponent<ScrewStructureDestruction>();
+
+
+                // FOR ElevatorVisibleObject GameObject
+                StructureGhostSwapper structureGhostSwapper = main_elevator_inside_ingredients.AddComponent<StructureGhostSwapper>();
+
+
+                structure_crafting_node.GrabExit();
 
             }
             else
