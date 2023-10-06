@@ -24,16 +24,24 @@ namespace SimpleElevator
 
             private float[] floorHeights = { 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30 };  // Add more values if needed. 
 
+            
+
             public void InitializeController(GameObject elevatorObject)
             {
                 preFabGameObject = elevatorObject;
                 startPosition = preFabGameObject.transform.position;
                 GenericFunctions.PostLogsToConsole($"Initialized start position: {startPosition}");
+
+                if (button == null)
+                {
+                    GenericFunctions.PostErrorToConsole($"Button is null during initialization of InitializeController!");
+                }
             }
+
+            
 
             private void Update()
             {
-
                 // For movement of the elevator, it shouldn't matter if the button/UI is active.
                 MoveElevator();
 
@@ -41,6 +49,10 @@ namespace SimpleElevator
                 if (this != activeButtonController && isUIPanelActive)
                 {
                     return;
+                }
+                if (button == null)
+                {
+                    GenericFunctions.PostErrorToConsole($"Button == null during Update!");
                 }
 
                 if (!button.IsActive && !isUIPanelActive) { return; }

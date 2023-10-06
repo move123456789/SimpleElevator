@@ -49,6 +49,10 @@ public class SimpleElevator : SonsMod
         // Get Prefab for copying data
         Debug.DeerHideRugStructureNode = GenericFunctions.FindNodePrefabFromStructureRecipeDatabase(68);
 
+        // TEst
+        GenericFunctions.PostLogsToConsole("Running MakeMainElevatorWithScripts()");
+        ModifedPrefabs.MakeMainElevatorWithScripts();
+        
     }
 
     protected void OnUpdate()

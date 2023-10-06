@@ -3,7 +3,6 @@ using Sons.Crafting.Structures;
 using TheForest.Utils;
 using UnityEngine;
 using System.Collections;
-using static RedLoader.RLog;
 
 namespace SimpleElevator
 {

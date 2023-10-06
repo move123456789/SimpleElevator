@@ -162,7 +162,7 @@ namespace SimpleElevator
                 structureRecipe._alignToSurface = true;
                 structureRecipe._anchor = StructureRecipe.AnchorType.Bottom;
                 structureRecipe._blockDismantleInProximityWithPlayersOrActors = false;
-                structureRecipe._builtPrefab = Assets.MainElevator;
+                structureRecipe._builtPrefab = ModifedPrefabs.MainElevatorWithScripts;
                 structureRecipe._canBeRotated = true;
                 structureRecipe._category = StructureRecipe.CategoryType.Utility;
                 structureRecipe._craftCompleteAudioEvent = "event:/ui/ingame/ui_crafting_complete2";
@@ -209,7 +209,6 @@ namespace SimpleElevator
                 // My Own NodePrefabController
                 nodePrefabController.nodePrefabController = structure_crafting_node;
                 nodePrefabController.nodePrefab = game_obj_instance;
-
             }
             else
             {
