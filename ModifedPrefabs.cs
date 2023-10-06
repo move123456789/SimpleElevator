@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
-using static SimpleElevator.Mono;
 
 namespace SimpleElevator
 {
@@ -18,7 +17,7 @@ namespace SimpleElevator
             MainElevatorWithScripts = UnityEngine.Object.Instantiate(Assets.MainElevator);
             if (MainElevatorWithScripts != null)
             {
-                ElevatorButtonController script_for_ui_element = MainElevatorWithScripts.transform.GetChild(1).gameObject.AddComponent<ElevatorButtonController>();
+                Mono.ElevatorButtonController script_for_ui_element = MainElevatorWithScripts.transform.GetChild(1).gameObject.AddComponent<Mono.ElevatorButtonController>();
                 if (script_for_ui_element == null)
                 {
                     GenericFunctions.PostErrorToConsole("Failed to add ElevatorButtonController!");
@@ -46,11 +45,7 @@ namespace SimpleElevator
                 linkUi.enabled = false;
                 linkUi.enabled = true;
 
-                script_for_ui_element.button = linkUi;
-                if (script_for_ui_element.button == null)
-                {
-                    GenericFunctions.PostErrorToConsole("Failed to assign button in ElevatorButtonController!");
-                }
+                script_for_ui_element.InitializLinkUiElement(linkUi);
 
                 if (script_for_ui_element == null)
                 {

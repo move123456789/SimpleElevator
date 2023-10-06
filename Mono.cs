@@ -24,7 +24,19 @@ namespace SimpleElevator
 
             private float[] floorHeights = { 0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30 };  // Add more values if needed. 
 
-            
+            public void InitializLinkUiElement(LinkUiElement linkUiElement)
+            {
+                if (linkUiElement == null)
+                {
+                    GenericFunctions.PostErrorToConsole("linkUiElement = null In InitializLinkUiElement");
+                }
+                button = linkUiElement;
+
+                if (button == null)
+                {
+                    GenericFunctions.PostErrorToConsole("button = null After InitializLinkUiElement set the button");
+                }
+            }
 
             public void InitializeController(GameObject elevatorObject)
             {
